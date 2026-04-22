@@ -4,17 +4,28 @@ jobs:
   build:
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v4
+
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.11'
+
       - name: Install dependencies
-        run: pip install -r requirements.txt
+        run: |
+          python -m pip install --upgrade pip
+          pip install pyinstaller
+          # Устанавливаем библиотеки напрямую, так как requirements может быть не в той папке
+          pip install openai PyQt5 pyttsx3 speechrecognition
+
       - name: Build EXE
-        run: python build.py
+        run: |
+          # Собираем файл, указывая правильный путь внутри папки
+          pyinstaller --onefile jarvis_core/main.py
+
       - name: Upload Artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: JARVIS-EXE
           path: dist/*.exe
